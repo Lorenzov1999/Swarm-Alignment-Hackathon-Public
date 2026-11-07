@@ -314,7 +314,7 @@ def main():
     for argument in ('source', 'operations', 'development-candidates', 'output'):
         parser.add_argument('--' + argument, type=Path, required=True)
     parser.add_argument('--operation-manifest', type=Path)
-    parser.add_argument('--protocol', type=Path, default=ROOT / 'docs/swarm-content-protocol.md')
+    parser.add_argument('--protocol', type=Path, default=ROOT / 'config/swarm-content-protocol.txt')
     args = parser.parse_args()
     result = run(args.source, args.operations, args.operation_manifest or args.operations.parent / 'manifest.json',
                  args.development_candidates, args.protocol, args.output)

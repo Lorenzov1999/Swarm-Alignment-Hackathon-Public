@@ -184,7 +184,7 @@ def followthrough_summary(pair_days, draws=DRAWS):
         'Repeated requests do not become independent scored units; no validation of actual consumption follows.')
 
 
-def run(output):
+def run(output, allow_label_snapshot_mismatch=False):
     output = Path(output)
     if output.exists():
         raise FileExistsError('Refusing to overwrite an existing reporting run')
@@ -203,8 +203,10 @@ def run(output):
             raise ValueError('Original frozen output identity changed: '+name)
     dataset = next(item for item in json.loads(paths['dataset_manifest'].read_text())['datasets']
                    if item['name']=='AI Village request records (validation labels)')
-    if dataset['files'][0]['sha256'] != hashes['labels']:
-        raise ValueError('Request snapshot differs from its retained source manifest')
+    label_snapshot_matches = dataset['files'][0]['sha256'] == hashes['labels']
+    if not label_snapshot_matches and not allow_label_snapshot_mismatch:
+        raise ValueError('Request snapshot differs from its retained source manifest '
+                         '(pass --allow-label-snapshot-mismatch to use a newer snapshot)')
     fitted = json.loads(paths['fit'].read_text())['models']
     frame = bounded_predictions(pd.read_csv(paths['predictions']), fitted)
     before = pd.read_csv(paths['predictions_before_labels'])
@@ -234,7 +236,8 @@ def run(output):
             'Site follow-through labels may share textual evidence with features and are not independent human consumption annotations. '
             'Whole-day scores are retrospective; direct chat exclusion does not remove conversations embedded in tool outputs.',
         input_files={name:dict(path=str(path.relative_to(ROOT)),sha256=hashes[name]) for name,path in paths.items()},
-        code_sha256=sha(__file__), reserved_dates_opened=False, new_label_fetch=False)
+        code_sha256=sha(__file__), reserved_dates_opened=False, new_label_fetch=False,
+        label_snapshot_matches_manifest=label_snapshot_matches)
     if hashes != {name:sha(path) for name,path in paths.items()}:
         raise ValueError('An input changed during reporting')
     output.mkdir(parents=True)
@@ -249,6 +252,8 @@ def run(output):
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,default=ROOT/'outputs/claude-review-20261107/labels-visibility')
-    args=parser.parse_args();r=run(args.output)
+    parser.add_argument('--allow-label-snapshot-mismatch',action='store_true',
+                        help='accept a request snapshot that differs from the one recorded in data/manifest.json')
+    args=parser.parse_args();r=run(args.output,allow_label_snapshot_mismatch=args.allow_label_snapshot_mismatch)
     print(json.dumps(dict(output=str(args.output),request_pair_days=r['request_coverage']['request_pair_days'],
                          clean_followthrough=r['followthrough']['clean_contrast'])))

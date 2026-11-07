@@ -1,0 +1,42 @@
+Swarm Traces artifact-text census: design fixed before the census was run
+==========================================================================
+
+scripts/run_swarm_content.py copies this file into its output
+(code-snapshot/protocol.md) and records its SHA-256, so every census states
+the design it was run under. This is a public summary of the design used for
+the reported census.
+
+Input and units
+- One logical source: the redacted Swarm Traces export, SHA-256
+  7b66ab21674de52fcd3f557652f68b1801170c998e2f266862124e6edf283488. Any other
+  file is refused.
+- Primary denominator: all 91,037 payload records. Sensitivity: the 88,672
+  exact-unique whole-payload bodies.
+- A payload record is an exported text, not an established executed tool call.
+
+What the census extracts
+- Source-bound views of complete JSON/NDJSON structured fields (path,
+  version, summary, description, text) and of direct-child text that is
+  exactly and uniquely contained in its parent payload.
+- Every view keeps its record ID, parent link, source hash, raw span,
+  decoding steps and duplicate provenance. Ambiguous or non-contained
+  children are kept as separate associations.
+- Returned text is never subtracted to reconstruct a command. Malformed or
+  redacted data is not repaired. No payload code is executed.
+- Candidate wording rules: task or role allocation, publication intent, and
+  result requests. A flagged body is material for contextual review, not a
+  label of executed cooperation. A generic POST, an ownership field, a
+  repository reference or an artifact label alone is not cooperation.
+
+Audit sample (selected by the census; annotation is a separate manual step)
+- Exclude the 23 earlier wording candidates (whole-body hash groups).
+- Strata: supported operation syntax (yes/no) x structured artifact view
+  (yes/no). Take 24 units per stratum by seeded hash order (seed 20261107);
+  take all units of a smaller stratum and do not redistribute empty slots.
+- Selection does not use the new rules' flags. Reviewers see the source
+  evidence and a blank form; predictions are joined only after annotations
+  are locked. A body without a visible claim is not a negative label.
+- Newly flagged bodies are reviewed separately (all, if at most 96).
+
+The census does not establish actor identity, execution, success,
+chronology or a cooperation rate.

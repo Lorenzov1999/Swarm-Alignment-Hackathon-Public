@@ -1,0 +1,680 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-11-06T19:01:07.151405+00:00",
+  "period": [
+    "2026-06-01",
+    "2026-07-05"
+  ],
+  "timezone": "America/Los_Angeles",
+  "source": "data/ai-village/main-village/village_goals.jsonl.gz",
+  "source_sha256": "14474413db05a1fef73bf54f120404526217c5286e24f0bda5cbf72bdef75886",
+  "metadata_rows_scanned": 51,
+  "descriptions_opened": 7,
+  "description_gate": "Lexically extract top-level start_time/end_time only; decode goal description only after its interval overlaps the authorized UTC bounds.",
+  "blinding": "Classification used goal descriptions only; no target activity, request labels, detector outputs, or METR findings were consulted.",
+  "category_interpretation": {
+    "collaborative": "Explicit common leader/support goal; intended dependency only.",
+    "competitive": "Explicit competition among agents.",
+    "individual": "Individual challenge without required joint output.",
+    "mixed": "Mixed or unspecified coordination prescription; not evidence of empirically mixed behavior."
+  },
+  "rules": [
+    {
+      "id": "explicit_peer_competition",
+      "pattern": "\\b(?:compete|competition|competitive|tournament)\\b",
+      "category": "competitive",
+      "rationale": "The wording explicitly calls for competition or ranking against others.",
+      "confidence": "high"
+    },
+    {
+      "id": "shared_leader_or_named_help",
+      "pattern": "\\b(?:(?:follow|finetune) your leader|help Gemini 2\\.5 Pro)\\b",
+      "category": "collaborative",
+      "rationale": "The goal directs agents toward a common leader or support for a named agent. This encodes intended dependence, not observed cooperation.",
+      "confidence": "high"
+    },
+    {
+      "id": "individual_environment_challenge",
+      "pattern": "^Beat the hardest game you can!?$",
+      "category": "individual",
+      "rationale": "The challenge is directed at each agent's game achievement; it neither requires a common artifact nor explicitly pits agents against one another. Joint play remains possible.",
+      "confidence": "moderate"
+    },
+    {
+      "id": "underspecified_social_organization",
+      "pattern": "^(?:Organise an event|Reduce global suffering as much as you can)!?$",
+      "category": "mixed",
+      "rationale": "A common broad objective is stated, but the description alone does not specify a joint workflow versus parallel individual efforts. Classified as mixed/unspecified rather than assumed collaborative.",
+      "confidence": "ambiguous"
+    }
+  ],
+  "intervals": [
+    {
+      "goal_id": "b3f1d47d-4274-446b-8bd1-6fdaa041d313",
+      "description": "Finetune your leader!",
+      "category": "collaborative",
+      "classification_rule": "shared_leader_or_named_help",
+      "confidence": "high",
+      "rationale": "The goal directs agents toward a common leader or support for a named agent. This encodes intended dependence, not observed cooperation.",
+      "original_start_utc": "2026-05-26T11:37:17.662000+00:00",
+      "original_end_utc": "2026-06-01T15:19:23.040000+00:00",
+      "start_inclusive_utc": "2026-06-01T07:00:00+00:00",
+      "end_exclusive_utc": "2026-06-01T15:19:23.040000+00:00",
+      "start_inclusive_pacific": "2026-06-01T00:00:00-07:00",
+      "end_exclusive_pacific": "2026-06-01T08:19:23.040000-07:00"
+    },
+    {
+      "goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+      "description": "Follow your leader!",
+      "category": "collaborative",
+      "classification_rule": "shared_leader_or_named_help",
+      "confidence": "high",
+      "rationale": "The goal directs agents toward a common leader or support for a named agent. This encodes intended dependence, not observed cooperation.",
+      "original_start_utc": "2026-06-01T15:19:23.040000+00:00",
+      "original_end_utc": "2026-06-08T09:30:58.230000+00:00",
+      "start_inclusive_utc": "2026-06-01T15:19:23.040000+00:00",
+      "end_exclusive_utc": "2026-06-08T09:30:58.230000+00:00",
+      "start_inclusive_pacific": "2026-06-01T08:19:23.040000-07:00",
+      "end_exclusive_pacific": "2026-06-08T02:30:58.230000-07:00"
+    },
+    {
+      "goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+      "description": "Organise an event!",
+      "category": "mixed",
+      "classification_rule": "underspecified_social_organization",
+      "confidence": "ambiguous",
+      "rationale": "A common broad objective is stated, but the description alone does not specify a joint workflow versus parallel individual efforts. Classified as mixed/unspecified rather than assumed collaborative.",
+      "original_start_utc": "2026-06-08T09:30:58.230000+00:00",
+      "original_end_utc": "2026-06-15T11:26:56.836000+00:00",
+      "start_inclusive_utc": "2026-06-08T09:30:58.230000+00:00",
+      "end_exclusive_utc": "2026-06-15T11:26:56.836000+00:00",
+      "start_inclusive_pacific": "2026-06-08T02:30:58.230000-07:00",
+      "end_exclusive_pacific": "2026-06-15T04:26:56.836000-07:00"
+    },
+    {
+      "goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+      "description": "Reduce global suffering as much as you can!",
+      "category": "mixed",
+      "classification_rule": "underspecified_social_organization",
+      "confidence": "ambiguous",
+      "rationale": "A common broad objective is stated, but the description alone does not specify a joint workflow versus parallel individual efforts. Classified as mixed/unspecified rather than assumed collaborative.",
+      "original_start_utc": "2026-06-15T11:26:56.836000+00:00",
+      "original_end_utc": "2026-06-22T14:20:55.172000+00:00",
+      "start_inclusive_utc": "2026-06-15T11:26:56.836000+00:00",
+      "end_exclusive_utc": "2026-06-22T14:20:55.172000+00:00",
+      "start_inclusive_pacific": "2026-06-15T04:26:56.836000-07:00",
+      "end_exclusive_pacific": "2026-06-22T07:20:55.172000-07:00"
+    },
+    {
+      "goal_id": "632715ac-3daf-4f5a-b5c2-1f801c59e526",
+      "description": "Help Gemini 2.5 Pro!",
+      "category": "collaborative",
+      "classification_rule": "shared_leader_or_named_help",
+      "confidence": "high",
+      "rationale": "The goal directs agents toward a common leader or support for a named agent. This encodes intended dependence, not observed cooperation.",
+      "original_start_utc": "2026-06-22T14:20:55.172000+00:00",
+      "original_end_utc": "2026-06-23T14:38:18.978000+00:00",
+      "start_inclusive_utc": "2026-06-22T14:20:55.172000+00:00",
+      "end_exclusive_utc": "2026-06-23T14:38:18.978000+00:00",
+      "start_inclusive_pacific": "2026-06-22T07:20:55.172000-07:00",
+      "end_exclusive_pacific": "2026-06-23T07:38:18.978000-07:00"
+    },
+    {
+      "goal_id": "1d341656-a224-42b1-92f0-96b007cc89fc",
+      "description": "Beat the hardest game you can!",
+      "category": "individual",
+      "classification_rule": "individual_environment_challenge",
+      "confidence": "moderate",
+      "rationale": "The challenge is directed at each agent's game achievement; it neither requires a common artifact nor explicitly pits agents against one another. Joint play remains possible.",
+      "original_start_utc": "2026-06-23T14:38:18.978000+00:00",
+      "original_end_utc": "2026-06-29T09:22:34.761000+00:00",
+      "start_inclusive_utc": "2026-06-23T14:38:18.978000+00:00",
+      "end_exclusive_utc": "2026-06-29T09:22:34.761000+00:00",
+      "start_inclusive_pacific": "2026-06-23T07:38:18.978000-07:00",
+      "end_exclusive_pacific": "2026-06-29T02:22:34.761000-07:00"
+    },
+    {
+      "goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+      "description": "Compete to be the best AI Assistant!",
+      "category": "competitive",
+      "classification_rule": "explicit_peer_competition",
+      "confidence": "high",
+      "rationale": "The wording explicitly calls for competition or ranking against others.",
+      "original_start_utc": "2026-06-29T09:22:34.761000+00:00",
+      "original_end_utc": "2026-07-06T15:59:00+00:00",
+      "start_inclusive_utc": "2026-06-29T09:22:34.761000+00:00",
+      "end_exclusive_utc": "2026-07-06T07:00:00+00:00",
+      "start_inclusive_pacific": "2026-06-29T02:22:34.761000-07:00",
+      "end_exclusive_pacific": "2026-07-06T00:00:00-07:00"
+    }
+  ],
+  "day_assignments": [
+    {
+      "day": "2026-06-01",
+      "primary_goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+      "primary_category": "collaborative",
+      "primary_clock_fraction": 0.6532055555555556,
+      "transition_day": true,
+      "overlap": [
+        {
+          "goal_id": "b3f1d47d-4274-446b-8bd1-6fdaa041d313",
+          "category": "collaborative",
+          "seconds": 29963.04
+        },
+        {
+          "goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+          "category": "collaborative",
+          "seconds": 56436.96
+        }
+      ]
+    },
+    {
+      "day": "2026-06-02",
+      "primary_goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+      "primary_category": "collaborative",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+          "category": "collaborative",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-03",
+      "primary_goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+      "primary_category": "collaborative",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+          "category": "collaborative",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-04",
+      "primary_goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+      "primary_category": "collaborative",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+          "category": "collaborative",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-05",
+      "primary_goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+      "primary_category": "collaborative",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+          "category": "collaborative",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-06",
+      "primary_goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+      "primary_category": "collaborative",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+          "category": "collaborative",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-07",
+      "primary_goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+      "primary_category": "collaborative",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+          "category": "collaborative",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-08",
+      "primary_goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+      "primary_category": "mixed",
+      "primary_clock_fraction": 0.8951593750000001,
+      "transition_day": true,
+      "overlap": [
+        {
+          "goal_id": "f8f409c8-f10a-4b66-9a56-5743e3da67a0",
+          "category": "collaborative",
+          "seconds": 9058.23
+        },
+        {
+          "goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+          "category": "mixed",
+          "seconds": 77341.77
+        }
+      ]
+    },
+    {
+      "day": "2026-06-09",
+      "primary_goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+      "primary_category": "mixed",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+          "category": "mixed",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-10",
+      "primary_goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+      "primary_category": "mixed",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+          "category": "mixed",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-11",
+      "primary_goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+      "primary_category": "mixed",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+          "category": "mixed",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-12",
+      "primary_goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+      "primary_category": "mixed",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+          "category": "mixed",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-13",
+      "primary_goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+      "primary_category": "mixed",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+          "category": "mixed",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-14",
+      "primary_goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+      "primary_category": "mixed",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+          "category": "mixed",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-15",
+      "primary_goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+      "primary_category": "mixed",
+      "primary_clock_fraction": 0.8146199537037038,
+      "transition_day": true,
+      "overlap": [
+        {
+          "goal_id": "fad5b22b-c030-4262-8cb0-7cf424c7c236",
+          "category": "mixed",
+          "seconds": 16016.836
+        },
+        {
+          "goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+          "category": "mixed",
+          "seconds": 70383.164
+        }
+      ]
+    },
+    {
+      "day": "2026-06-16",
+      "primary_goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+      "primary_category": "mixed",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+          "category": "mixed",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-17",
+      "primary_goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+      "primary_category": "mixed",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+          "category": "mixed",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-18",
+      "primary_goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+      "primary_category": "mixed",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+          "category": "mixed",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-19",
+      "primary_goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+      "primary_category": "mixed",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+          "category": "mixed",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-20",
+      "primary_goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+      "primary_category": "mixed",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+          "category": "mixed",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-21",
+      "primary_goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+      "primary_category": "mixed",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+          "category": "mixed",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-22",
+      "primary_goal_id": "632715ac-3daf-4f5a-b5c2-1f801c59e526",
+      "primary_category": "collaborative",
+      "primary_clock_fraction": 0.6938058796296297,
+      "transition_day": true,
+      "overlap": [
+        {
+          "goal_id": "e2575699-7b29-460b-b214-a80763df6dd9",
+          "category": "mixed",
+          "seconds": 26455.172
+        },
+        {
+          "goal_id": "632715ac-3daf-4f5a-b5c2-1f801c59e526",
+          "category": "collaborative",
+          "seconds": 59944.828
+        }
+      ]
+    },
+    {
+      "day": "2026-06-23",
+      "primary_goal_id": "1d341656-a224-42b1-92f0-96b007cc89fc",
+      "primary_category": "individual",
+      "primary_clock_fraction": 0.6817247916666667,
+      "transition_day": true,
+      "overlap": [
+        {
+          "goal_id": "632715ac-3daf-4f5a-b5c2-1f801c59e526",
+          "category": "collaborative",
+          "seconds": 27498.978
+        },
+        {
+          "goal_id": "1d341656-a224-42b1-92f0-96b007cc89fc",
+          "category": "individual",
+          "seconds": 58901.022
+        }
+      ]
+    },
+    {
+      "day": "2026-06-24",
+      "primary_goal_id": "1d341656-a224-42b1-92f0-96b007cc89fc",
+      "primary_category": "individual",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "1d341656-a224-42b1-92f0-96b007cc89fc",
+          "category": "individual",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-25",
+      "primary_goal_id": "1d341656-a224-42b1-92f0-96b007cc89fc",
+      "primary_category": "individual",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "1d341656-a224-42b1-92f0-96b007cc89fc",
+          "category": "individual",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-26",
+      "primary_goal_id": "1d341656-a224-42b1-92f0-96b007cc89fc",
+      "primary_category": "individual",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "1d341656-a224-42b1-92f0-96b007cc89fc",
+          "category": "individual",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-27",
+      "primary_goal_id": "1d341656-a224-42b1-92f0-96b007cc89fc",
+      "primary_category": "individual",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "1d341656-a224-42b1-92f0-96b007cc89fc",
+          "category": "individual",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-28",
+      "primary_goal_id": "1d341656-a224-42b1-92f0-96b007cc89fc",
+      "primary_category": "individual",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "1d341656-a224-42b1-92f0-96b007cc89fc",
+          "category": "individual",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-06-29",
+      "primary_goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+      "primary_category": "competitive",
+      "primary_clock_fraction": 0.9009865625,
+      "transition_day": true,
+      "overlap": [
+        {
+          "goal_id": "1d341656-a224-42b1-92f0-96b007cc89fc",
+          "category": "individual",
+          "seconds": 8554.761
+        },
+        {
+          "goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+          "category": "competitive",
+          "seconds": 77845.239
+        }
+      ]
+    },
+    {
+      "day": "2026-06-30",
+      "primary_goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+      "primary_category": "competitive",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+          "category": "competitive",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-07-01",
+      "primary_goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+      "primary_category": "competitive",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+          "category": "competitive",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-07-02",
+      "primary_goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+      "primary_category": "competitive",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+          "category": "competitive",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-07-03",
+      "primary_goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+      "primary_category": "competitive",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+          "category": "competitive",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-07-04",
+      "primary_goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+      "primary_category": "competitive",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+          "category": "competitive",
+          "seconds": 86400.0
+        }
+      ]
+    },
+    {
+      "day": "2026-07-05",
+      "primary_goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+      "primary_category": "competitive",
+      "primary_clock_fraction": 1.0,
+      "transition_day": false,
+      "overlap": [
+        {
+          "goal_id": "680a1b42-e1e2-45ea-b4d7-50764eb0523e",
+          "category": "competitive",
+          "seconds": 86400.0
+        }
+      ]
+    }
+  ],
+  "day_assignment_method": "Primary goal has the greatest scheduled clock-time overlap with the Pacific day. This is independent of activity or scores. Exact intervals are preferred for event-level analysis; transition_day enables a predeclared sensitivity excluding mixed-goal dates.",
+  "limitations": [
+    "Goal intent is not evidence that agents actually cooperate.",
+    "The game-challenge individual category is uncertain; joint play is not ruled out.",
+    "Event organization and reducing suffering are conservatively mixed/unspecified, not assumed collaborative.",
+    "Calendar-time majority is not working-time majority; report transition-day sensitivity."
+  ]
+}

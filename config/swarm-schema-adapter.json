@@ -1,0 +1,75 @@
+{
+  "schema_version": "swarm-static-adapter-v1",
+  "created_at_utc": "2026-11-06T19:31:50.613311+00:00",
+  "format": "jsonl",
+  "compression": "gzip",
+  "source_sha256": "7b66ab21674de52fcd3f557652f68b1801170c998e2f266862124e6edf283488",
+  "fields": {
+    "id": "id",
+    "kind": "kind",
+    "parent_id": "parent_id",
+    "text": "text"
+  },
+  "payload_kind": "payload",
+  "response_kind": "response",
+  "excluded_kinds": [
+    "recovered_text"
+  ],
+  "ignored_fields": [
+    "tags",
+    "cite"
+  ],
+  "unit": "Exported payload record; not established executed tool call",
+  "source_deduplication": "Two downloads have identical bytes; analyze one logical source",
+  "available": {
+    "record_identity": true,
+    "extraction_parent_association": true,
+    "resource_reference_incidence": true
+  },
+  "unavailable": {
+    "actor_boundaries": true,
+    "run_boundaries": true,
+    "execution_order": true,
+    "timestamps": true,
+    "message_roles": true,
+    "executed_tool_identity": true,
+    "verified_operation_success": true
+  },
+  "analysis": {
+    "url": "Existing canonical_url on complete unredacted spans only; never keep a prefix truncated at a redaction",
+    "opaque_aliases": [
+      "[SERVICE digits URL digits]",
+      "[REDACTED:destination:digits]"
+    ],
+    "alias_identity": "Exact case-sensitive spelling, including leading zeros, scoped to source SHA; equality does not guarantee unique original URLs",
+    "excluded_aliases": [
+      "credentials",
+      "generic or numbered runtime_identifier",
+      "source_identifier"
+    ],
+    "paths": "Quoted literal paths accepted by existing path primitives; root-record scoped references only, no cross-record shared-file or operation claim",
+    "primary_denominator": "All payload records",
+    "duplicate_sensitivity": "Exact whole-payload byte hash only for duplicate-accounting sensitivity; no fuzzy or passage matching",
+    "responses": "Generic reference sets on kind=response; compare only to explicitly named payload parent, without success or time interpretation",
+    "recovered_text": "Excluded from content analysis to avoid recovered/derived views and double counting",
+    "top_resources": 20
+  },
+  "gated_metrics": {
+    "before_after_changes": null,
+    "message_anchor_comparison": null,
+    "unsupervised_change_points": null,
+    "version_acquisition_rate": null,
+    "downstream_use_rate": null,
+    "cross_agent_interaction_rate": null,
+    "reason": "Metadata does not establish executed calls, chronology, runs, actors or immutable producer/use relations. These quantities are unavailable, not zero."
+  },
+  "inspection_before_freeze": [
+    "All outer metadata; text/tags/cite excluded from initial inventory",
+    "Payload complete-JSON field names/types, not field values",
+    "First six payload text prefixes to identify literal JS request expressions and redaction syntax; no signal curves",
+    "Independent metadata graph/citation audit; no source URLs followed"
+  ],
+  "no_metr_findings_accessed": true,
+  "first_village_paper_remote_commit": "c07cc6d2f45098a521f5dde641a00fe3215eb73c",
+  "metadata_audit_sha256": "b439a963b5321f64f880cd7c813f436f4a20d3c3891ed4e8778e208f93231918"
+}
