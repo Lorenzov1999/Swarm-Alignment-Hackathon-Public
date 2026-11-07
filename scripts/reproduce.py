@@ -174,6 +174,8 @@ def build_stages(options):
                  exists(REVIEW / 'regimes' / 'report' / 'daily.csv')),
             Step('activity comparisons within pairs and days', script('check_activity_concordance.py'),
                  exists(REVIEW / 'activity-concordance-review.json')),
+            Step('each technique alone (Table 1)', script('review_technique_transfer.py'),
+                 exists(OUT / 'technique-transfer' / 'table.csv')),
             Step('Figure 4', script('review_goal_coverage.py', '--daily',
                                     REVIEW / 'regimes' / 'report' / 'daily.csv', '--output-dir', OUT / 'figures'),
                  exists(OUT / 'figures' / 'goal-co-use-robustness.pdf')),
