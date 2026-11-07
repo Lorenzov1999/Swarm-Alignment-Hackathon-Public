@@ -1,0 +1,85 @@
+{
+  "inventory_date": "2026-11-06",
+  "scope": "Files already downloaded locally; upstream completeness was not verified.",
+  "datasets": [
+    {
+      "name": "AI Village main-village",
+      "source": "https://huggingface.co/datasets/aidigestorg/ai-village/tree/main/main-village",
+      "files": [
+        {
+          "target": "data/ai-village/main-village/agent_memories.jsonl.gz",
+          "bytes": 3184947009,
+          "sha256": "7ba341c81eec605fc8d60d41e246061a6ed902cc7ea61bd5f444d3e4569ebf8e"
+        },
+        {
+          "target": "data/ai-village/main-village/agents.jsonl.gz",
+          "bytes": 6563,
+          "sha256": "64747ddd4340f6c7d2dcf6f9df904965eff947dd0df391c3ccce8e497adf9b48"
+        },
+        {
+          "target": "data/ai-village/main-village/chat_messages.jsonl.gz",
+          "bytes": 61813397,
+          "sha256": "2f8e29dbb37187d1cc24bf4828b100222e0b8833b1800df5c101c84e74ae75f1"
+        },
+        {
+          "target": "data/ai-village/main-village/computer_use_sessions.jsonl.gz",
+          "bytes": 63823514,
+          "sha256": "5077486e92634f6b36186444334d4448c291baba12d2719f8f23cda197a267fd"
+        },
+        {
+          "target": "data/ai-village/main-village/computer_use_turns.jsonl.gz",
+          "bytes": 4048342781,
+          "sha256": "a0c1fb4e22f732b7c787fba584ef46d67c1d946a275ffdaa87ab32ed4cd3b386"
+        },
+        {
+          "target": "data/ai-village/main-village/events.jsonl.gz",
+          "bytes": 469750076,
+          "sha256": "9cb2faa974f1aef441c478870daae61780049a49c23c66b3c117513de34f5e8c"
+        },
+        {
+          "target": "data/ai-village/main-village/summaries.jsonl.gz",
+          "bytes": 2910256,
+          "sha256": "ddc89007f60d202ed99a52fe005a45118c28ccb53da5a632d068a2ae7437cc30"
+        },
+        {
+          "target": "data/ai-village/main-village/village-transcript.json",
+          "bytes": 446347619,
+          "sha256": "df75837cc26b7be5b3fecc7234c2befde353c2de7ca2eaed8e6bf14734865c4a"
+        },
+        {
+          "target": "data/ai-village/main-village/village_goals.jsonl.gz",
+          "bytes": 4449,
+          "sha256": "14474413db05a1fef73bf54f120404526217c5286e24f0bda5cbf72bdef75886"
+        }
+      ]
+    },
+    {
+      "name": "Swarm Traces",
+      "source": "Existing local downloads; original filenames preserved.",
+      "files": [
+        {
+          "target": "data/swarm-traces/redacted.jsonl.gz",
+          "bytes": 15214685,
+          "sha256": "7b66ab21674de52fcd3f557652f68b1801170c998e2f266862124e6edf283488"
+        },
+        {
+          "target": "data/swarm-traces/redacted.jsonl(1).gz",
+          "bytes": 15214685,
+          "sha256": "7b66ab21674de52fcd3f557652f68b1801170c998e2f266862124e6edf283488"
+        }
+      ]
+    },
+    {
+      "name": "AI Village request records (validation labels)",
+      "source": "https://theaidigest.org/village/agent/gemini-2-5-pro (chart props in the page's React Server Components payload; scripts/fetch_labels.py)",
+      "notes": "Snapshot taken 2026-11-05: 4,854 requests, 2025-04-08 to 2026-09-15. A re-fetch on 2026-11-06 matched every one of these records, labels included, and added 44 requests dated 16-17 Sep 2026. The snapshot is the label set used.",
+      "files": [
+        {
+          "target": "data/labels/ai-village-chart-props.json",
+          "bytes": 2654606,
+          "sha256": "f29e1a7998b8b768725288d0325213f24fb48d63dd19c8ed932ade7a1eb53de2"
+        }
+      ]
+    }
+  ]
+}

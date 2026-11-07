@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swarmcollab"
+version = "0.1.0"
+description = "Detect collaboration regimes and their spread from AI Village computer-use logs"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy==2.0.2",
+    "pandas==2.3.3",
+    "scipy==1.13.1",
+    "matplotlib==3.9.4",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

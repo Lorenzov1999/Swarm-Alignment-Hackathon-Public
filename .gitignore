@@ -1,0 +1,14 @@
+/data/*
+!/data/manifest.json
+/outputs/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.egg-info/
