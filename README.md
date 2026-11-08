@@ -1,6 +1,6 @@
-# Monitoring AI Agent Interactions Through Shared Resources
+# Monitoring LLM Agents Through Shared Resources
 
-Code for the report *Monitoring AI Agent Interactions Through Shared Resources*
+Code for the report *Monitoring LLM Agents Through Shared Resources*
 (Apart Research, Swarm Alignment sprint, November 2026).
 
 The current paper uses a generic parser and a rarity-weighted shared-resource
