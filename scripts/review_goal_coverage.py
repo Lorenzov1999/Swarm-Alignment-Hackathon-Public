@@ -132,17 +132,17 @@ def plot(daily, destination):
                      transform=axes[0].get_xaxis_transform(), ha='center', va='bottom',
                      fontsize=8 if len(ix) > 1 else 7)
     axes[0].plot(x, primary.flagged_partners_per_active_agent, color='#222222',
-                 marker='o', markersize=3, lw=1.4, label='Fixed L1 alerts')
+                 marker='o', markersize=3, lw=1.4, label='Generic detector alerts')
     axes[0].axhline(reference.flagged_partners_per_active_agent.median(),
-                    color='#666666', ls=':', lw=1.3, label='Aug–Sep daily median')
+                    color='#666666', ls=':', lw=1.3, label='Test-period daily median')
     axes[0].set_ylabel('Flagged partners\nper active agent')
     axes[0].set_ylim(0, 12)
     axes[0].set_yticks([0, 3, 6, 9, 12])
     axes[1].plot(x, primary.trace_coverage, color='#087f8c', marker='o',
                  markersize=3, lw=1.4, label='Steps with resource identifiers')
     axes[1].axhline(reference.trace_coverage.median(), color='#666666', ls=':',
-                    lw=1.3, label='Aug–Sep daily median')
-    axes[1].set_ylabel('Trace coverage')
+                    lw=1.3, label='Test-period daily median')
+    axes[1].set_ylabel('Coverage')
     axes[1].set_ylim(0, .70)
     axes[1].set_yticks([0, .2, .4, .6])
     axes[1].yaxis.set_major_formatter(PercentFormatter(1))
