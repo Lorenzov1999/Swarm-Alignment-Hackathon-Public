@@ -1,4 +1,4 @@
-# Monitoring LLM Agents Through Shared Resources
+# Monitoring LLM Agents Through Shared Resources (Vibe-Slop)
 
 Code for the report *Monitoring LLM Agents Through Shared Resources*
 (Apart Research, Swarm Alignment sprint, November 2026).
