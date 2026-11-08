@@ -26,50 +26,50 @@ def pipeline(figures=FIGURES):
   <title id="title">From resource identifiers in work logs to ranked agent pairs</title>
   <desc id="desc">Work logs, excluding explicit chat, supply normalized resource identifiers. Daily profiles give more weight to rare shared identifiers and produce a ranking of agent pairs. July work and request records set rarity weights and alert threshold. Recorded help requests from the validation and test periods evaluate the ranking.</desc>
   <defs>
-    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 8 4 L 0 8 Z" fill="#46505c"/></marker>
+    <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 8 4 L 0 8 Z" fill="#6b7c89"/></marker>
     <style>
-      text { font-family: "DejaVu Sans", sans-serif; fill: #18232d; text-anchor: middle; }
+      text { font-family: "DejaVu Sans", sans-serif; fill: #263746; text-anchor: middle; }
       .heading { font-size: 18px; font-weight: 600; }
-      .detail { font-size: 16px; }
-      .flow { fill: none; stroke: #46505c; stroke-width: 1.8; marker-end: url(#arrow); }
-      .box { stroke-width: 1.5; rx: 7; }
+      .detail { font-size: 16px; fill: #526572; }
+      .flow { fill: none; stroke: #6b7c89; stroke-width: 1.8; marker-end: url(#arrow); }
+      .box { stroke-width: 1.5; }
     </style>
   </defs>
   <rect width="936" height="281" fill="white"/>
-  <rect class="box" x="293" y="3" width="430" height="53" fill="#f7f8fa" stroke="#a8b0b8"/>
+  <rect class="box" rx="9" ry="9" x="293" y="3" width="430" height="53" fill="#f5f7f9" stroke="#b2bec8"/>
   <text class="heading" x="508" y="25">July work logs + help requests</text>
   <text class="detail" x="508" y="46">Set rarity weights and alert threshold</text>
   <path class="flow" d="M 585 57 V 81"/>
 
-  <rect class="box" x="2" y="85" width="192" height="105" fill="#f7f8fa" stroke="#707b85"/>
+  <rect class="box" rx="9" ry="9" x="2" y="85" width="192" height="105" fill="#f5f7f9" stroke="#9eacb8"/>
   <text class="heading" x="98" y="113">Work logs</text>
   <text class="detail" x="98" y="145">Actions and outputs</text>
   <text class="detail" x="98" y="169">Explicit chat excluded</text>
   <path class="flow" d="M 196 138 H 220"/>
 
-  <rect class="box" x="226" y="85" width="210" height="105" fill="#edf3fb" stroke="#38659a"/>
+  <rect class="box" rx="9" ry="9" x="226" y="85" width="210" height="105" fill="#eef4f9" stroke="#7c9db6"/>
   <text class="heading" x="331" y="113">Resource identifiers</text>
   <text class="detail" x="331" y="145">Match references to</text>
   <text class="detail" x="331" y="169">the same object</text>
   <path class="flow" d="M 438 138 H 462"/>
 
-  <rect class="box" x="468" y="85" width="235" height="105" fill="#edf3fb" stroke="#38659a"/>
+  <rect class="box" rx="9" ry="9" x="468" y="85" width="235" height="105" fill="#eef4f9" stroke="#7c9db6"/>
   <text class="heading" x="585.5" y="113">Compare daily profiles</text>
   <text class="detail" x="585.5" y="145">Rare shared identifiers</text>
   <text class="detail" x="585.5" y="169">count more</text>
   <path class="flow" d="M 705 138 H 729"/>
 
-  <rect class="box" x="735" y="85" width="199" height="105" fill="#edf7f4" stroke="#307568"/>
+  <rect class="box" rx="9" ry="9" x="735" y="85" width="199" height="105" fill="#edf7f4" stroke="#79a69a"/>
   <text class="heading" x="834.5" y="113">Rank agent pairs</text>
   <text class="detail" x="834.5" y="145">One score per pair</text>
   <text class="detail" x="834.5" y="169">per day</text>
   <path class="flow" d="M 834.5 192 V 220"/>
 
-  <rect class="box" x="414" y="226" width="283" height="44" fill="#f7f8fa" stroke="#a8b0b8"/>
+  <rect class="box" rx="9" ry="9" x="414" y="226" width="283" height="44" fill="#f5f7f9" stroke="#b2bec8"/>
   <text class="detail" x="555.5" y="243">Recorded help requests</text>
   <text class="detail" x="555.5" y="262">Validation and test periods</text>
   <path class="flow" d="M 699 248 H 729"/>
-  <rect class="box" x="735" y="226" width="199" height="44" fill="#f7f8fa" stroke="#a8b0b8"/>
+  <rect class="box" rx="9" ry="9" x="735" y="226" width="199" height="44" fill="#f5f7f9" stroke="#b2bec8"/>
   <text class="heading" x="834.5" y="253">Evaluate ranking</text>
 </svg>
 '''
@@ -122,33 +122,33 @@ def workload(source=SOURCE, results_path=RESULTS, figures=FIGURES):
                          'axes.labelsize': 9, 'legend.fontsize': 8,
                          'svg.fonttype': 'none', 'svg.hashsalt': 'shared-resource-workload',
                          'pdf.fonttype': 42, 'axes.spines.top': False,
-                         'axes.spines.right': False, 'axes.edgecolor': '#c3c2b7',
-                         'axes.labelcolor': '#18232d', 'xtick.color': '#52514e',
-                         'ytick.color': '#52514e', 'xtick.major.size': 0,
+                         'axes.spines.right': False, 'axes.edgecolor': '#b5c0c9',
+                         'text.color': '#263746', 'axes.labelcolor': '#263746', 'xtick.color': '#64717b',
+                         'ytick.color': '#64717b', 'xtick.major.size': 0,
                          'ytick.major.size': 0, 'lines.solid_capstyle': 'round',
                          'lines.solid_joinstyle': 'round'})
     fig, ax = plt.subplots(figsize=(6.5, 2.6))
-    series = [('shared_resources', 'Shared resources', '#2a78d6', 1.8, 4),
-              ('activity', 'Activity only', '#898781', 1.5, 3),
-              ('random', 'Random ranking', '#c3c2b7', 1.0, 2)]
+    series = [('shared_resources', 'Shared resources', '#3f6b8a', 1.8, 4),
+              ('activity', 'Activity only', '#64717b', 1.5, 3),
+              ('random', 'Random ranking', '#85939d', 1.0, 2)]
     for key, label, color, width, order in series:
         ax.plot([row['alerts_per_day'] for row in rows], [row[key] for row in rows],
                 color=color, lw=width, label=label, zorder=order)
-    ax.axvline(budget, color='#898781', lw=.8, ls=(0, (3, 3)), zorder=1)
+    ax.axvline(budget, color='#64717b', lw=.8, ls=(0, (3, 3)), zorder=1)
     ax.text(budget + 3, .038, f'July threshold: {budget:.0f} alerts/day on average',
-            color='#52514e', fontsize=8, ha='left', va='bottom')
-    for key, color, dx, dy, align in [('shared_resources', '#2a78d6', -4, .018, 'right'),
-                                       ('activity', '#898781', 4, -.015, 'left')]:
+            color='#64717b', fontsize=8, ha='left', va='bottom')
+    for key, color, dx, dy, align in [('shared_resources', '#3f6b8a', -4, .018, 'right'),
+                                       ('activity', '#64717b', 4, -.015, 'left')]:
         recall = recalls[key]
         ax.plot(budget, recall, 'o', ms=6, color=color, mec='white', mew=1.4, zorder=6)
         ax.text(budget + dx, recall + dy, f'{100 * recall:.1f}%',
-                color='#18232d', fontsize=8, ha=align, va='center', zorder=7)
+                color='#263746', fontsize=8, ha=align, va='center', zorder=7)
     ax.set_xlim(0, 200)
     ax.set_ylim(0, 1)
     ax.set_xticks(range(0, 201, 25))
     ax.set_yticks([0, .25, .5, .75, 1])
     ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
-    ax.grid(axis='y', color='#e1e0d9', lw=.6)
+    ax.grid(axis='y', color='#e3e9ee', lw=.6)
     ax.set_axisbelow(True)
     ax.set_xlabel('Average alerts per observed day')
     ax.set_ylabel('Request pair-days flagged')

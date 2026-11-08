@@ -30,9 +30,9 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 INK = '#263746'
-MUTED = '#63717b'
+MUTED = '#64717b'
 EDGE = '#899ba7'
-NODE = '#536f82'
+NODE = '#3f6b8a'
 ISOLATE = '#a2a8ad'
 FOCUS = '#b45320'
 BACKGROUND = '#ffffff'
@@ -233,7 +233,7 @@ def draw_snapshot(ax, snapshot, letter=None, individual=False):
         plotted_labels.append((name, label))
         tooltips['node-' + token] = tooltips['label-' + token] = name
     if isolates:
-        ax.axhline(isolate_height, xmin=.008, xmax=.992, lw=.5, color='#e0e4e7')
+        ax.axhline(isolate_height, xmin=.008, xmax=.992, lw=.5, color='#dde5eb')
         ax.text(.02, isolate_height - .035, 'Agents with no detected links', fontsize=8.5 if individual else 7,
                 color=MUTED, ha='left', va='top')
         for i, name in enumerate(isolates):
