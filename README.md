@@ -118,7 +118,7 @@ the commands, `--stages report,diagnostics` to run selected stages, or
 | `transfer` | Applies the frozen models, unchanged, to 17 August to 15 September and to 1 June to 5 July. Predictions are saved before the request labels are joined. |
 | `report` | Comparison tables, provenance by goal episode, and a hash lock of the transfer results that later stages check. |
 | `followup` | Alert workload and goal-episode comparisons. |
-| `diagnostics` | Baselines (activity, July pair history, within-pair), each borrowed technique alone (Table 2), recall against average daily alerts (Figure 3), the July signal composition, visibility and follow-through with an activity control, goal-episode coverage, and Figure 4. |
+| `diagnostics` | Activity controls and comparisons within pairs and days, each borrowed technique alone (Table 2), recall against average daily alerts (Figure 3), the July signal composition, visibility and follow-through with an activity control, goal-episode coverage, and Figure 4. |
 | `swarm` | Swarm Traces: static reference analysis, wording census, request-expression census, embedded date/time inventory, artifact-text census. |
 
 Output folders keep the dates of the original study (for example
@@ -130,7 +130,7 @@ Output folders keep the dates of the original study (for example
 |---|---|
 | Table 2 (each technique alone, baselines and combined models) | `outputs/technique-transfer/table.csv` |
 | Table 3 (AUROC and average precision of the combined models) | `outputs/generalization-20261106/report/primary-comparison.csv` |
-| Activity, July pair-history and within-pair baselines | `outputs/claude-review-20261107/baselines/summary.json` |
+| Activity baseline and within-pair comparisons | `outputs/claude-review-20261107/baselines/summary.json` |
 | Within-pair and within-day comparisons with activity | `outputs/claude-review-20261107/activity-concordance-review.json` |
 | Table 4 (recall and false-positive rate at July thresholds) | `outputs/generalization-20261106/report/primary-comparison.csv` |
 | Alert workload and precision | `outputs/cooperation-followup-20261106/village/monitoring.json` |

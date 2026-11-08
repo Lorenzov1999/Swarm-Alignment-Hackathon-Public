@@ -22,7 +22,6 @@ X_MAX = 200          # alerts per day shown; the saved curves run to every activ
 SERIES = [  # column, legend label, color, line width (pt), draw order
     ('random', 'Random ranking', '#c3c2b7', 0.9, 1),
     ('activity', 'Activity only', '#898781', 1.5, 2),
-    ('pair_history', 'July pair history', '#52514e', 1.5, 3),
     ('shared_resources', 'Shared resources alone', '#eb6834', 1.5, 4),
     ('generic_detector', 'Generic detector', '#2a78d6', 1.5, 5),
 ]
@@ -70,7 +69,7 @@ def plot(curves, summary, destination):
     ax.axvline(x0, color=MUTED, lw=0.8, ls=(0, (3, 3)), zorder=0.5)
     ax.text(x0 + 2.5, 0.035, f'July threshold: {x0:.0f} alerts/day on average',
             color=INK_2, fontsize=8, ha='left', va='bottom')
-    labels = {'generic_detector': (-3.5, 0.0, 'right'), 'pair_history': (3.5, -0.035, 'left'),
+    labels = {'generic_detector': (-3.5, 0.0, 'right'),
               'activity': (3.5, -0.035, 'left')}
     colors = {column: color for column, _, color, _, _ in SERIES}
     for column, (dx, dy, align) in labels.items():
@@ -92,8 +91,7 @@ def plot(curves, summary, destination):
     ax.set_ylabel('Recall (request\npair-days flagged)')
     handles, names = ax.get_legend_handles_labels()
     order = [names.index(name) for name in ('Generic detector', 'Shared resources alone',
-                                            'July pair history', 'Activity only',
-                                            'Random ranking')]
+                                            'Activity only', 'Random ranking')]
     # The upper-left corner is empty at every budget: no curve reaches 60% before 45 alerts/day.
     legend = ax.legend([handles[i] for i in order], [names[i] for i in order], loc='upper left',
                        bbox_to_anchor=(0.005, 1.0), frameon=True, framealpha=1,
@@ -125,8 +123,11 @@ def main():
         'script_sha256': sha(__file__),
         'purpose': 'Post-hoc display of saved frozen test-period rankings against average alerts per observed day.',
         'shown_alerts_per_day': [0, X_MAX],
+        'shown_series': [column for column, *_ in SERIES],
         'operating_point': summary['operating_point'],
-        'at_operating_budget': summary['at_operating_budget'],
+        'at_operating_budget': {
+            column: summary['at_operating_budget'][column]
+            for column, *_ in SERIES if column in summary['at_operating_budget']},
         'figure_sha256': {suffix: sha(args.output_dir / ('alert-budget.' + suffix))
                           for suffix in ('svg', 'pdf')}}
     output = args.output_dir / 'alert-budget.json'
