@@ -13,8 +13,10 @@ Trace types
   pipeline  a CI pipeline (p<id>) or job (j<id>)
   project   a numeric GitLab project ID
   gdoc      a Google Doc, Sheet, Slides deck, Form, Drive file or Apps Script project
-  site      any other web host, as host + first path segment
-  page      a specific page on a Pages or external site (host + path)
+  site      any other web host, as host + first path segment; IP URLs use
+            scheme + address + nondefault port to identify the endpoint
+  page      a specific page on a Pages or external site (host + path);
+            IP URLs preserve the exact path, query and fragment
   name      another agent's name, kept as its own feature group
   pidmap    not a trace: a project ID / repository pair learned from API output
   pidvote   not a trace: a project ID and a repository named together in one step
@@ -35,6 +37,7 @@ Only the authorized development slice is parsed, using Pacific calendar dates.
 import collections
 import datetime as dt
 import gzip
+import ipaddress
 import json
 import posixpath
 import re
@@ -45,6 +48,7 @@ from urllib.parse import unquote, urlsplit
 from zoneinfo import ZoneInfo
 
 from . import config
+from .agent_traces import SECRET_KEY
 
 UTC = dt.timezone.utc
 PACIFIC = ZoneInfo('America/Los_Angeles')
@@ -57,7 +61,12 @@ GUI_KINDS = {'left_click', 'right_click', 'double_click', 'triple_click', 'middl
              'get_pixel_coords_of_element', 'gui', 'left_mouse_down', 'left_mouse_up', 'zoom'}
 
 # ---------------------------------------------------------------- URLs
-URL_RE = re.compile(r'https?://[^\s\'"<>`\\)\]}|,]+')
+# Consume a bracketed IPv6 authority before the usual closing-bracket delimiter.
+# The second alternative preserves the existing tokenization of domain URLs.
+URL_RE = re.compile(
+    r'https?://(?:[^\s\'"<>`\\)\]}|,/@?#]+@)?'
+    r'\[[^\s\'"<>`\\)\[\]}|,]+\][^\s\'"<>`\\)\]}|,]*'
+    r'|https?://[^\s\'"<>`\\)\]}|,]+')
 SSH_RE = re.compile(r'git@(gitlab\.com|github\.com):([\w.-]+(?:/[\w.-]+)+?)(?:\.git)?(?=[\s\'"]|$)', re.M)
 HEX_RE = re.compile(r'[0-9a-f]{7,40}')
 BORING_HOSTS = {
@@ -153,7 +162,62 @@ def google_id(host, segs, query):
     return m.group(1) if m else None
 
 
+def ip_url(parts, address, original):
+    """Shared IP endpoint and exact page identity; credential URLs are excluded.
+
+    A common endpoint is deliberately weaker evidence than an identical page.
+    Loopback/unspecified addresses refer to individual machines, so they remain
+    excluded rather than introducing unscoped cross-agent local identities.
+    """
+    mapped = getattr(address, 'ipv4_mapped', None)
+    effective = mapped if mapped is not None else address
+    if effective.is_loopback or effective.is_unspecified:
+        return []
+    if parts.scheme not in ('http', 'https') or any(c.isspace() for c in original):
+        return []
+    if parts.username is not None or parts.password is not None:
+        return []
+    fields = parts.query.split('&') + [field for field in parts.fragment.split('&') if '=' in field]
+    if any(SECRET_KEY.search(unquote(field.split('=', 1)[0])) for field in fields):
+        return []
+    authority = parts.netloc.rsplit('@', 1)[-1]
+    pattern = r'\[[^\]]+\](?::[0-9]+)?' if address.version == 6 else r'[0-9.]+(?::[0-9]+)?'
+    if not re.fullmatch(pattern, authority):
+        return []
+    try:
+        port = parts.port
+    except ValueError:
+        return []
+    host = f'[{address.compressed}]' if address.version == 6 else str(address)
+    default = 80 if parts.scheme == 'http' else 443
+    endpoint = f'{parts.scheme}://{host}'
+    if port is not None and port != default:
+        endpoint += f':{port}'
+    page = endpoint + (parts.path or '/')
+    # Preserve even empty query/fragment delimiters and percent-encoded text.
+    if '?' in original.split('#', 1)[0]:
+        page += '?' + parts.query
+    if '#' in original:
+        page += '#' + parts.fragment
+    return [('site', endpoint), ('page', page)]
+
+
 def parse_url(u):
+    try:
+        parts = urlsplit(u)
+        host = parts.hostname or ''
+    except ValueError:
+        return []
+    if ':' in host or re.fullmatch(r'[\d.]+', host):
+        try:
+            address = ipaddress.ip_address(host)
+        except ValueError:
+            return []
+        return ip_url(parts, address, u)
+    if '[' in parts.netloc or ']' in parts.netloc:
+        return []  # Not a valid IPv6 literal (including unsupported IPvFuture).
+
+    # Keep the established domain-name normalization unchanged.
     u = u.rstrip('.,;:!?*\'"')
     try:
         parts = urlsplit(u)

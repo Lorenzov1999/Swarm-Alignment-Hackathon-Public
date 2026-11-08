@@ -1,23 +1,20 @@
-# What Work Traces Reveal About AI Agent Interactions
+# Monitoring AI Agent Interactions Through Shared Resources
 
-Code for the report *What Work Traces Reveal About AI Agent Interactions*
+Code for the report *Monitoring AI Agent Interactions Through Shared Resources*
 (Apart Research, Swarm Alignment sprint, November 2026).
 
-The analysis asks how much of the interaction between AI agents can be recovered
-from the work they leave behind, without reading their messages. It uses the
-[AI Village](https://theaidigest.org/village) computer-use logs with explicit
-chat and history operations removed, and:
+The current paper uses a generic parser and a rarity-weighted shared-resource
+score to identify likely collaboration in AI Village work logs, with an
+activity-only control. July weights are held fixed for August validation and
+later testing through 15 September. Four selected daily networks illustrate
+shared work and GUI assistance. The Swarm Traces case study applies resource
+overlap to distinct payload records and ranks resources for source review.
+Extraction and scoring run on CPUs without LLM calls.
 
-- ranks agent pairs that may be interacting on each day from shared resources,
-  timing, handovers and provenance (a portable layer, plus a layer of
-  Village-specific rules);
-- links artifact versions from the agent that produced them to the agent that
-  acquired or incorporated them (provenance, with evidence levels);
-- freezes models fitted on July 2026 and tests them, without retuning, on later
-  work (17 August to 15 September) and on earlier goal episodes (1 June to
-  5 July), against the request records published by AI Digest;
-- applies the portable reference matching to the redacted
-  [Swarm Traces](https://swarmtraces.org/) export of the Hugging Face incident.
+This release includes the IPv4/IPv6 URL correction, Swarm resource ranking,
+the current paper's numerical checks, and SVG/PDF network rendering. Older
+Hawkes, provenance and combined-detector experiments remain available as
+historical research code; they are not methods in the current paper.
 
 ## Prior work and authorship
 
@@ -34,6 +31,8 @@ implementation under the author's direction.
 - Optional: Node.js 20. The Swarm request-expression census parses JavaScript
   with the Acorn parser bundled in Node. Without Node, JavaScript is skipped
   and that census covers far fewer payloads than reported.
+- Figures: Graphviz (`neato`) and librsvg (`rsvg-convert`). These are
+  system tools; numerical analysis does not need them.
 - Optional: git, used by one test (skipped without it).
 - About 4 GB of downloads and a few GB of outputs. The full run was developed
   on 4 CPUs with 8 GB of RAM.
@@ -42,6 +41,8 @@ implementation under the author's direction.
 python3 -m venv .venv
 .venv/bin/pip install -e .
 .venv/bin/python -m unittest discover -s tests -p 'test_*.py'
+.venv/bin/python -I tests/test_parsing.py
+.venv/bin/python -m unittest discover -s scripts -p 'test_*.py'
 ```
 
 ## Get the data
@@ -64,8 +65,8 @@ hf download aidigestorg/ai-village --repo-type dataset --local-dir data/ai-villa
 ```
 
 AI Digest refreshes the dataset regularly, so a new download will not match the
-recorded SHA-256. The analysis only reads 1 June to 15 September 2026, so the
-results should not change unless records from that period were edited.
+recorded SHA-256. The registered analysis windows lie between 1 June and 15 September 2026.
+Changed records or request annotations within those dates can change results.
 
 **2. Request labels.** The evaluation labels are the agent-to-agent requests in
 AI Digest's public request chart:
@@ -97,83 +98,152 @@ Check everything with:
 .venv/bin/python scripts/check_data.py
 ```
 
-## Reproduce the results
+## Run the current code
+
+After obtaining the data and installing the package:
 
 ```bash
+.venv/bin/python scripts/reproduce.py --dry-run
 .venv/bin/python scripts/reproduce.py --allow-label-snapshot-mismatch
 ```
 
-`--allow-label-snapshot-mismatch` is only needed with a newly fetched label
-snapshot. The run takes one to two hours on 4 CPUs. Each step is skipped when
-its output already exists, so an interrupted run resumes when you run the same
-command again. Logs are written to `outputs/logs/`. Use `--dry-run` to print
-the commands, `--stages report,diagnostics` to run selected stages, or
-`--from transfer` to run one stage and everything after it.
+The runner retains the historical preparation stages because the saved feature
+and transfer tables feed the current paper checks. It then runs the current
+paper reports and Swarm resource ranking. Use `--stages` or `--from` to select
+stages; `--dry-run` prints commands. Logs are written to `outputs/logs/`.
+Optional numeric-correction replay is described below.
 
-| Stage | What it does |
+The current additions are `current-paper`, `swarm-ranking`, and the explicitly
+selected `numeric-correction` stage. For saved inputs:
+
+```bash
+.venv/bin/python scripts/reproduce.py --stages current-paper
+.venv/bin/python scripts/reproduce.py --stages current-paper --paper-mode frozen-paper
+.venv/bin/python scripts/reproduce.py --stages numeric-correction --paper-mode frozen-paper
+.venv/bin/python scripts/reproduce.py --stages swarm-ranking
+```
+
+Use `current-paper`'s default `current-run` mode for newly computed features;
+use `frozen-paper` only for the original retained baseline. The selected stages
+consume existing preparation outputs rather than automatically running their
+prerequisites.
+
+Preparation stages resume by skipping existing outputs; current-paper reports
+and figures are refreshed when selected. Use a clean checkout/output
+workspace when changing source data or extraction code: the existence of a
+file does not certify that it was produced by the current parser. Raw-data
+preparation can take one to two hours on four CPUs; reporting from saved tables
+is much faster.
+
+A fresh run uses the corrected parser. It is a new computation, not a
+byte-for-byte recreation of the earlier evaluation. New dataset or request
+snapshots can also change the numbers. Input and source hashes are recorded.
+
+### Original evaluation and the later parser correction
+
+The paper preserves the original evaluation and separately reports the numeric
+URL correction, which is included in its network illustrations. The correction
+leaves the original training, validation and test alert sets unchanged; test
+AUROC still rounds to 0.817. On June 22 it adds 11 links among users of one
+remote desktop, bringing the illustrated graph from 16 to 27 links.
+
+Public commit `0b97d55` contains the exact pre-correction code used by the
+original freeze. To recreate that baseline, run its preparation and diagnostic
+stages in a separate checkout with the recorded inputs, preserve the resulting
+`outputs/` and frozen source, then use the current reporting and correction
+scripts on those artifacts. For example:
+
+```bash
+git worktree add ../swarm-original 0b97d55
+```
+
+Obtain/install the data and environment in that checkout using its README.
+Do not rebuild its old freeze with the corrected parser: the comparison needs
+both versions. The correction runner deliberately rejects a baseline that
+already admits numeric IP endpoints. See
+[the numeric endpoint audit](docs/numeric-endpoint-fix.md) for the required
+caches and commands. No original data, score cache or review annotations are
+bundled in this code release.
+
+## Current paper scripts
+
+Every script offers `--help` and accepts explicit input/output paths; no sibling
+private repository or Overleaf checkout is required. Default paper artifacts
+are written under `outputs/current-paper/`.
+
+| Script/module | Purpose |
 |---|---|
-| `data` | Checks the input files against `data/manifest.json`. |
-| `development` | 6 July to 14 August pipeline: working steps (chat, history, room and session-goal operations dropped), resource traces, pair-day features and scores, daily regimes, Hawkes models, versioned provenance, and the portable and Village-specific layers. Training is 6 to 31 July; 3 to 14 August is the development validation. |
-| `freeze` | Copies the code and development outputs into `outputs/generalization-20261106/frozen/` and records their hashes; fits the frozen July state and the secondary models. Reports whether the code is byte-identical to the code frozen in the original study. |
-| `transfer` | Applies the frozen models, unchanged, to 17 August to 15 September and to 1 June to 5 July. Predictions are saved before the request labels are joined. |
-| `report` | Comparison tables, provenance by goal episode, and a hash lock of the transfer results that later stages check. |
-| `followup` | Alert workload and goal-episode comparisons. |
-| `diagnostics` | Activity controls and comparisons within pairs and days, each borrowed technique alone (Table 2), recall against average daily alerts (Figure 3), the July signal composition, visibility and follow-through with an activity control, goal-episode coverage, and Figure 4. |
-| `swarm` | Swarm Traces: static reference analysis, wording census, request-expression census, embedded date/time inventory, artifact-text census. |
+| `scripts/check_shared_resources.py` | Shared-resource and activity comparisons, within-pair/day checks, follow-through, operating point and descriptive intervals. |
+| `scripts/make_shared_resource_figures.py` | Pipeline schema and shared-resource alert-workload SVG/PDF figures. |
+| `scripts/build_village_network_snapshots.py` | Build the four selected daily networks, retaining agents without detected links. |
+| `scripts/build_corrected_village_network_snapshots.py` | Build the same views from the separate numeric-IP correction scores. |
+| `scripts/draw_village_networks.py` | Render network SVGs/PDFs using one edge-width scale, with independently chosen layouts. |
+| `scripts/review_numeric_endpoint_fix.py` | Compare newly admitted IP resources against the original frozen baseline, preserving July weights and threshold. |
+| `swarmcollab.swarm_resource_overlap` | Rank shared resources across distinct Swarm payload records; compare frequency and deduplication controls. |
+| `scripts/review_swarm_resource_contexts.py` | Export the fixed, rank-selected source contexts without executing payload code. |
+| `scripts/summarize_swarm_resource_review.py` | Summarize separately supplied reviewer annotations; does not create annotations automatically. |
 
-Output folders keep the dates of the original study (for example
-`generalization-20261106`), because later stages look for them by name.
+The network builder distinguishes the original reviewed snapshots from a fresh
+run. A new run must not inherit historical topology or coverage claims merely
+because it uses the same dates. The graph is undirected resource overlap; source
+review supplies the contextual description of selected partnerships.
 
-## Where the results are
+## Swarm resource ranking
 
-| Report item | File |
-|---|---|
-| Table 2 (each technique alone, baselines and combined models) | `outputs/technique-transfer/table.csv` |
-| Table 3 (AUROC and average precision of the combined models) | `outputs/generalization-20261106/report/primary-comparison.csv` |
-| Activity baseline and within-pair comparisons | `outputs/claude-review-20261107/baselines/summary.json` |
-| Within-pair and within-day comparisons with activity | `outputs/claude-review-20261107/activity-concordance-review.json` |
-| Table 4 (recall and false-positive rate at July thresholds) | `outputs/generalization-20261106/report/primary-comparison.csv` |
-| Alert workload and precision | `outputs/cooperation-followup-20261106/village/monitoring.json` |
-| Figure 3 (recall against average alerts per day) | `outputs/figures/alert-budget.pdf`, `alert-budget.json`; curves in `outputs/alert-budget/` |
-| Follow-through and visibility | `outputs/claude-review-20261107/labels-visibility/` (`summary.json`, `single-request-sensitivity.json`) |
-| Follow-through comparison with activity alone | `outputs/claude-review-20261107/followthrough-control.json` |
-| Figure 4 and the coverage correlations | `outputs/figures/goal-co-use-robustness.pdf`, `goal-coverage-review.json` |
-| What the shared-resource signal is made of (Section 5, Appendix B) | `outputs/signal-composition/summary.json` |
-| Table 5 and the provenance counts by period and goal | `outputs/cooperation-followup-20261106/village/group-summary.csv`, `rate-comparisons.json` |
-| Provenance chains (including the inspected handoff) | `outputs/generalization-20261106/{temporal,shared_goals}/chains.jsonl.gz` |
-| Spread control (development) | `outputs/spread/summary_dev.json` |
-| Swarm Traces results | `outputs/generalization-20261106/swarm/static/`, `outputs/cooperation-followup-20261106/swarm/`, `outputs/swarm-improvement-20261107/` |
+This stage can run without the Village data:
 
-## What the scripts do not reproduce
+```bash
+.venv/bin/python -m swarmcollab.swarm_resource_overlap \
+  --source data/swarm-traces/redacted.jsonl.gz \
+  --config config/swarm-schema-adapter.json \
+  --protocol docs/swarm-resource-ranking-protocol.md \
+  --output outputs/swarm-resource-ranking-20261108
+.venv/bin/python scripts/review_swarm_resource_contexts.py \
+  --source data/swarm-traces/redacted.jsonl.gz \
+  --ranking outputs/swarm-resource-ranking-20261108
+```
 
-Some results rest on annotations made by reviewers, not by code. The
-annotation files are not distributed, so these steps are not run:
+The input hash is fixed. Ranking and review-selection artifacts are saved before
+source-context inspection. The ranker refuses to overwrite an existing output
+folder. Source annotations and the paper's contextual assessments require
+separate review; the automatic ranking does not classify maliciousness or
+establish that code executed. No external incident-investigation outcomes are
+used by these scripts. The [protocol](docs/swarm-resource-ranking-protocol.md)
+defines the record population, resource score and review selection.
 
-- **Provenance chain audits.** `swarmcollab.provenance` writes an audit sample
-  (`outputs/provenance/audit_sample.jsonl`). Annotate a copy and score it with
-  `python -m swarmcollab.provenance --skip-extract --annotations FILE`.
-- **Swarm contextual reviews.** The classification of wording candidates, the
-  review of date/time contexts and the artifact-text audits are read by
-  `scripts/summarize_swarm_cooperation.py`, `scripts/swarm_time_acceptance.py`
-  and `scripts/summarize_swarm_content_audits.py`. The census stage selects the
-  audit samples and writes blank annotation forms.
+## Historical stages and data boundaries
+
+The retained preparation runner includes `development`, `freeze`, `transfer`,
+`report`, `followup`, `diagnostics`, and `swarm`. These retain the earlier
+combined-detector and static-census analyses for reproducibility. Historical
+output directories retain their original dates because scripts refer to them
+by name. They should not be interpreted as the current paper's table numbers.
+
+The registered Village windows are training (6–31 July), validation
+(3–14 August), test (17 August–15 September), and earlier shared goals
+(1 June–5 July), all in 2026 and using Pacific dates. The registered runners
+exclude 16 September onward. The legacy exploratory `timeline` module and
+`pairs --final` option are not part of this workflow.
+
+The parser filters explicit chat/history operations, room moves, session goals
+and waiting turns as documented by each stage. Text retained inside tool outputs
+can still contain messages. GUI activity remains in scope, but screenshots and
+other non-text content do not supply resource identifiers.
 
 ## Repository layout
 
 | Path | Contents |
 |---|---|
-| `src/swarmcollab/` | The analysis package |
-| `scripts/` | Stage runners, reporting and diagnostics; `reproduce.py` runs everything |
-| `tests/` | Unit tests |
-| `config/goal-regime-classification.json` | Goal categories for 1 June to 5 July, assigned from the goal descriptions before any result was seen; later stages check this exact file by hash |
-| `config/swarm-schema-adapter.json` | Field mapping for the Swarm Traces export |
-| `config/swarm-content-protocol.txt` | The artifact-text census design, recorded by that census |
-| `data/manifest.json` | Size and SHA-256 of the analysed data files |
+| `src/swarmcollab/` | Current parser, resource methods and retained historical analyses. |
+| `scripts/` | Reproduction, reporting and rendering commands. |
+| `tests/` and `scripts/test_*.py` | Unit tests and focused numerical/graph checks. |
+| `config/` | Frozen goal categories and Swarm export/schema protocols. |
+| `docs/` | Numeric-endpoint audit guide and resource-ranking protocol. |
+| `data/manifest.json` | File sizes and SHA-256 hashes for the analyzed snapshots. |
 
-Steps run with `PYTHONHASHSEED=0` and single-threaded linear algebra. Small
-floating-point differences across platforms are still possible. Data from
-16 September 2026 onward were held in reserve and never analysed; the code
-refuses date windows other than the registered ones.
+Raw datasets, output caches, credentials and local environments are excluded
+from Git. The published code does not include gated-log excerpts or the
+researcher's private source-review files.
 
 ## Data terms and citation
 

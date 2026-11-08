@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Run the analysis from the raw data to the reported results.
 
-Stages run in this order. A step is skipped when its output already exists, so
-an interrupted run resumes when the same command is run again.
+Stages run in this order. Historical stages skip existing completed outputs;
+current-paper regenerates figures and checks from the supplied saved inputs.
+The additive numeric correction is excluded unless selected explicitly.
 
   data         check the input files against data/manifest.json
   development  6 July-14 August pipeline: working steps, resource traces,
@@ -14,9 +15,12 @@ an interrupted run resumes when the same command is run again.
   followup     alert workload and goal-episode follow-up
   diagnostics  baselines, visibility, follow-through, coverage, Figure 4
   swarm        Swarm Traces static analysis and censuses
+  current-paper  current single-score diagnostics and editable paper figures
+  swarm-ranking  shared-resource ranking and local context export for review
+  numeric-correction  OPT-IN replay against original pre-fix frozen artifacts
 
 Examples:
-  python scripts/reproduce.py                    # everything
+  python scripts/reproduce.py                    # default stages; no numeric replay
   python scripts/reproduce.py --stages swarm     # selected stages only
   python scripts/reproduce.py --from transfer    # one stage and all later ones
   python scripts/reproduce.py --dry-run          # print the commands
@@ -42,12 +46,14 @@ STUDY = OUT / 'generalization-20261106'
 FOLLOWUP = OUT / 'cooperation-followup-20261106'
 REVIEW = OUT / 'claude-review-20261107'
 CONTENT = OUT / 'swarm-improvement-20261107'
+PAPER = OUT / 'current-paper'
 SWARM_SOURCE = ROOT / 'data' / 'swarm-traces' / 'redacted.jsonl.gz'
 SWARM_SHA256 = '7b66ab21674de52fcd3f557652f68b1801170c998e2f266862124e6edf283488'
 GOAL_CLASSIFICATION = ROOT / 'config' / 'goal-regime-classification.json'
 GOAL_SHA256 = '48c8961ccc0350781957fb0b4ea2e553db82d42d7dd4057eebee472db9cc753b'
 STAGES = ('data', 'development', 'freeze', 'transfer', 'report', 'followup',
-          'diagnostics', 'swarm')
+          'diagnostics', 'swarm', 'current-paper', 'swarm-ranking', 'numeric-correction')
+OPT_IN_STAGES = {'numeric-correction'}
 
 
 @dataclass
@@ -102,6 +108,13 @@ def build_stages(options):
     census = FOLLOWUP / 'swarm' / 'operation-census-v2'
     javascript = [] if options.javascript else ['--without-javascript']
     label_flag = ['--allow-label-snapshot-mismatch'] if options.allow_label_snapshot_mismatch else []
+    paper = options.paper_output
+    provenance, figures = paper / 'provenance', paper / 'figures'
+    results = provenance / 'shared-resource-results.json'
+    snapshots = provenance / 'village-network-snapshots.json'
+    original = provenance / 'village-network-snapshots-original.json'
+    corrected = provenance / 'village-network-snapshots-ip-corrected.json'
+    followthrough = ['--skip-followthrough'] if options.skip_paper_followthrough else []
     return {
         'data': [
             Step('check input files', script('check_data.py', *(['--no-hash'] if options.quick_data_check else []))),
@@ -218,6 +231,54 @@ def build_stages(options):
                         '--output', CONTENT / 'census-diagnostics.json'),
                  exists(CONTENT / 'census-diagnostics.json')),
         ],
+        'current-paper': [
+            Step('single shared-resource score and activity diagnostics',
+                 script('check_shared_resources.py', '--input-root', options.paper_input_root,
+                        '--mode', options.paper_mode, '--output', results, *followthrough)),
+            Step('editable pipeline and workload figures',
+                 script('make_shared_resource_figures.py', '--source',
+                        options.paper_input_root / 'outputs/alert-budget', '--results', results,
+                        '--output-dir', figures, '--report', provenance / 'shared-resource-figures.json')),
+            Step('selected daily networks from supplied frozen scores',
+                 script('build_village_network_snapshots.py', '--input-root', options.paper_input_root,
+                        '--results', results, '--mode', options.paper_mode, '--output', snapshots)),
+            Step('editable selected network figures',
+                 script('draw_village_networks.py', '--input', snapshots, '--output-dir', figures,
+                        '--report', provenance / 'village-network-figures.json')),
+        ],
+        'swarm-ranking': [
+            Step('Swarm shared-resource ranking',
+                 module('swarm_resource_overlap', '--source', options.swarm_source,
+                        '--config', ROOT / 'config/swarm-schema-adapter.json',
+                        '--protocol', ROOT / 'docs/swarm-resource-ranking-protocol.md',
+                        '--output', options.swarm_ranking_output),
+                 exists(options.swarm_ranking_output / 'manifest.json')),
+            Step('export local source contexts for independent review',
+                 script('review_swarm_resource_contexts.py', '--source', options.swarm_source,
+                        '--ranking', options.swarm_ranking_output),
+                 exists(options.swarm_ranking_output / 'review/context-manifest.json')),
+        ],
+        'numeric-correction': [
+            Step('audit numeric endpoints against original pre-fix inputs',
+                 script('review_numeric_endpoint_fix.py', '--published-results', results,
+                        '--shared-steps', STUDY / 'shared_goals/steps',
+                        '--temporal-steps', STUDY / 'temporal/steps',
+                        '--output', options.numeric_audit_output),
+                 exists(options.numeric_audit_output / 'summary.json')),
+            Step('preserve the original frozen network snapshots',
+                 script('build_village_network_snapshots.py', '--input-root', options.paper_input_root,
+                        '--results', results, '--mode', 'frozen-paper', '--output', original,
+                        '--daily-output', provenance / 'village-network-daily-original.csv')),
+            Step('build separately labelled corrected network snapshots',
+                 script('build_corrected_village_network_snapshots.py', '--original', original,
+                        '--audit', options.numeric_audit_output, '--output', corrected)),
+            Step('render original frozen network figures separately',
+                 script('draw_village_networks.py', '--input', original,
+                        '--output-dir', figures / 'original-frozen')),
+            Step('render corrected network figures separately',
+                 script('draw_village_networks.py', '--input', corrected,
+                        '--output-dir', figures / 'ip-corrected')),
+        ],
     }
 
 
@@ -278,6 +339,16 @@ def main():
                         help='skip JavaScript parsing in the request-expression census')
     parser.add_argument('--quick-data-check', action='store_true', help='compare data file sizes only')
     parser.add_argument('--dry-run', action='store_true', help='print the commands without running them')
+    parser.add_argument('--paper-input-root', type=Path, default=ROOT,
+                        help='Repository-shaped saved inputs for current-paper (default: this repository)')
+    parser.add_argument('--paper-output', type=Path, default=PAPER)
+    parser.add_argument('--paper-mode', choices=['current-run', 'frozen-paper'], default='current-run',
+                        help='Fresh supplied run, or exact original pre-correction paper snapshots')
+    parser.add_argument('--skip-paper-followthrough', action='store_true',
+                        help='Explicitly omit follow-through diagnostics if their annotations are unavailable')
+    parser.add_argument('--swarm-source', type=Path, default=SWARM_SOURCE)
+    parser.add_argument('--swarm-ranking-output', type=Path, default=OUT / 'swarm-resource-ranking-20261108')
+    parser.add_argument('--numeric-audit-output', type=Path, default=OUT / 'numeric-endpoint-fix-20261108')
     options = parser.parse_args()
     if options.javascript is None:
         options.javascript = shutil.which('node') is not None
@@ -292,9 +363,17 @@ def main():
         if unknown:
             parser.error('unknown stage(s): ' + ', '.join(unknown))
     elif options.first:
-        selected = list(STAGES[STAGES.index(options.first):])
+        selected = [name for name in STAGES[STAGES.index(options.first):]
+                    if name not in OPT_IN_STAGES or name == options.first]
     else:
-        selected = list(STAGES)
+        selected = [name for name in STAGES if name not in OPT_IN_STAGES]
+    if 'numeric-correction' in selected and options.paper_mode != 'frozen-paper':
+        parser.error('numeric-correction requires --paper-mode frozen-paper and retained pre-fix inputs; '
+                     'it is not a fresh latest-extractor run')
+    if 'numeric-correction' in selected and options.paper_input_root.resolve() != ROOT:
+        parser.error('numeric-correction reads retained development inputs from this checkout; '
+                     'run it in the upgraded baseline checkout without --paper-input-root. '
+                     'That option redirects current-paper inputs only.')
     stages = build_stages(options)
     for stage in STAGES:
         if stage in selected:

@@ -37,6 +37,128 @@ def test_urls():
         assert got == want, (url, got)
 
 
+def test_ip_endpoint_identity():
+    endpoint = 'http://10.108.0.39:6080'
+    url = endpoint + '/vnc.html?path=WebSockify%2FOne#View!'
+    assert T.parse_url(url) == [('site', endpoint), ('page', url)]
+
+    # Different transport endpoints must not become a common site or page.
+    endpoints = [endpoint, 'http://10.108.0.39:6081',
+                 'https://10.108.0.39:6080', 'http://10.108.0.40:6080']
+    profiles = [set(T.parse_url(e + '/vnc.html')) for e in endpoints]
+    for i, profile in enumerate(profiles):
+        for other in profiles[i + 1:]:
+            assert profile.isdisjoint(other), (profile, other)
+
+    # Sharing a server is allowed, while the exact page distinctions survive.
+    suffixes = ['/VNC', '/vnc', '/vnc?room=A', '/vnc?room=a', '/vnc#A',
+                '/vnc#B', '/vnc?', '/vnc#', '/vnc/A%2FB', '/vnc/A/B']
+    parsed = [dict(T.parse_url(endpoint + suffix)) for suffix in suffixes]
+    assert {p['site'] for p in parsed} == {endpoint}
+    assert {p['page'] for p in parsed} == {endpoint + suffix for suffix in suffixes}
+
+
+def test_ip_address_and_default_port_normalization():
+    cases = {
+        'http://10.108.0.39:80/vnc.html':
+            [('site', 'http://10.108.0.39'), ('page', 'http://10.108.0.39/vnc.html')],
+        'https://192.0.2.1:443/':
+            [('site', 'https://192.0.2.1'), ('page', 'https://192.0.2.1/')],
+        'https://[2001:0DB8:0:0:0:0:0:1]:443/Control?room=A#Screen':
+            [('site', 'https://[2001:db8::1]'),
+             ('page', 'https://[2001:db8::1]/Control?room=A#Screen')],
+        'http://[fd00::1]:6080/vnc.html':
+            [('site', 'http://[fd00::1]:6080'), ('page', 'http://[fd00::1]:6080/vnc.html')],
+        'http://[::ffff:192.0.2.1]/':
+            [('site', 'http://[::ffff:192.0.2.1]'), ('page', 'http://[::ffff:192.0.2.1]/')],
+    }
+    for url, want in cases.items():
+        assert T.parse_url(url) == want, (url, T.parse_url(url))
+    assert T.parse_url('http://10.108.0.39:80') == T.parse_url('http://10.108.0.39/')
+    assert T.parse_url('https://[2001:db8::1]:443') == T.parse_url('https://[2001:db8::1]/')
+
+
+def test_invalid_and_machine_local_ip_endpoints_are_excluded():
+    urls = [
+        'http://localhost:6080/vnc.html', 'http://machine.local:6080/vnc.html',
+        'http://127.0.0.1:6080/vnc.html', 'http://127.20.30.40:6080/vnc.html',
+        'http://0.0.0.0:6080/vnc.html', 'http://[::]:6080/vnc.html',
+        'http://[::1]:6080/vnc.html', 'http://[::ffff:127.0.0.1]:6080/vnc.html',
+        'http://[::ffff:0.0.0.0]:6080/vnc.html',
+        'http://999.1.2.3/vnc.html', 'http://10.108.0/vnc.html',
+        'http://010.108.0.39/vnc.html', 'http://[2001:db8::zzz]/vnc.html',
+        'http://[2001:db8::1/vnc.html', 'http://2001:db8::1/vnc.html',
+        'http://[2001:db8::1]junk:6080/vnc.html', 'http://[v1.a]/vnc.html',
+        'http://10.108.0.39:abc/vnc.html', 'http://10.108.0.39:65536/vnc.html',
+        'http://10.108.0.39:-1/vnc.html', 'http://10.108.0.39:/vnc.html',
+        'http://[2001:db8::1]:abc/vnc.html', 'http://[2001:db8::1]:65536/vnc.html',
+        'http://[2001:db8::1]:/vnc.html', 'ftp://10.108.0.39/vnc.html',
+    ]
+    for url in urls:
+        assert T.parse_url(url) == [], (url, T.parse_url(url))
+
+
+def test_ip_credentials_do_not_become_identifiers():
+    urls = [
+        'http://user:password@10.108.0.39:6080/vnc.html',
+        'http://user@[2001:db8::1]:6080/vnc.html',
+        'http://10.108.0.39:6080/vnc.html?token=secret',
+        'http://10.108.0.39:6080/vnc.html?room=A&api_key=secret',
+        'http://10.108.0.39:6080/vnc.html?%74oken=secret',
+        'http://[2001:db8::1]:6080/vnc.html#password=secret',
+        'http://[2001:db8::1]:6080/vnc.html#tab=console&access_key=secret',
+    ]
+    p = T.AgentParser('GPT-5', ['GPT-5', 'GPT-5.1'])
+    for i, url in enumerate(urls):
+        assert T.parse_url(url) == [], (url, T.parse_url(url))
+        p.typed(float(i), 'd', i, url)
+    assert p.rows == [], p.rows
+
+
+def test_ip_urls_reach_shell_output_and_typed_traces():
+    names = ['GPT-5', 'GPT-5.1']
+    p = T.AgentParser(names[0], names)
+    ipv4 = 'http://10.108.0.39:6080/vnc.html?path=WebSockify#View'
+    ipv6 = 'https://[2001:db8::1]:443/Control?room=A#Screen'
+    p.typed(1., 'd', 0, ipv4)
+    p.shell(2., 'd', 1, 's', f"curl '{ipv6}'", f'Available at [{ipv6}]')
+    p.typed(3., 'd', 2, ipv6)
+    rows = {(r[3], r[4], r[5], r[6]) for r in p.rows}
+    page6 = 'https://[2001:db8::1]/Control?room=A#Screen'
+    assert ('page', ipv4, 'read', 'typed') in rows, rows
+    assert ('site', 'http://10.108.0.39:6080', 'read', 'typed') in rows, rows
+    for operation, source in [('read', 'cmd'), ('seen', 'out'), ('read', 'typed')]:
+        assert ('page', page6, operation, source) in rows, rows
+        assert ('site', 'https://[2001:db8::1]', operation, source) in rows, rows
+    assert len(rows) == 8, rows
+
+    # Identical loopback URLs on two machines must not create shared traces.
+    for actor in names:
+        local = T.AgentParser(actor, names)
+        local.typed(1., 'd', 0, 'http://127.0.0.1:8888/Sharesite/Edit/0')
+        local.shell(2., 'd', 1, 's', "curl 'http://[::1]:8888/'", '')
+        assert local.rows == [], local.rows
+
+
+def test_domain_url_normalization_and_delimiters_unchanged():
+    cases = {
+        'https://News.test:8443/Case/Folder/index.html?mode=X#Section':
+            [('site', 'news.test/case'), ('page', 'news.test/case/folder')],
+        'https://arxiv.org/abs/2601.01234.':
+            [('site', 'arxiv.org/abs'), ('page', 'arxiv.org/abs/2601.01234')],
+        'http://www.10.108.0.39/vnc.html': [],
+        'https://example.com/path': [],
+    }
+    for url, want in cases.items():
+        assert T.parse_url(url) == want, (url, T.parse_url(url))
+    p = T.AgentParser('GPT-5', ['GPT-5', 'GPT-5.1'])
+    expected = [('site', 'arxiv.org/abs'), ('page', 'arxiv.org/abs/2601.01234')]
+    for text in ['[https://arxiv.org/abs/2601.01234]',
+                 '(https://arxiv.org/abs/2601.01234)',
+                 'https://arxiv.org/abs/2601.01234, next item']:
+        assert p.urls(text) == expected, (text, p.urls(text))
+
+
 def test_repo_refs():
     assert T.repo_from_ref('ai-village-agents/village/x') == 'gitlab:ai-village-agents/village/x'
     assert T.repo_from_ref('git@gitlab.com:group/proj.git') == 'gitlab:group/proj'
