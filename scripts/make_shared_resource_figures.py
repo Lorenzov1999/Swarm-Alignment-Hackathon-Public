@@ -24,7 +24,7 @@ def sha(path):
 def pipeline(figures=FIGURES):
     svg = '''<svg xmlns="http://www.w3.org/2000/svg" width="6.5in" height="1.95in" viewBox="0 0 936 281" role="img" aria-labelledby="title desc">
   <title id="title">From resource identifiers in work logs to ranked agent pairs</title>
-  <desc id="desc">Work logs, excluding explicit chat, supply normalized resource identifiers. Daily profiles give more weight to rare shared identifiers and produce a ranking of agent pairs. July work and request records set rarity weights and alert threshold. Later website request records evaluate the ranking.</desc>
+  <desc id="desc">Work logs, excluding explicit chat, supply normalized resource identifiers. Daily profiles give more weight to rare shared identifiers and produce a ranking of agent pairs. July work and request records set rarity weights and alert threshold. Recorded help requests from the validation and test periods evaluate the ranking.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 8 4 L 0 8 Z" fill="#46505c"/></marker>
     <style>
@@ -37,7 +37,7 @@ def pipeline(figures=FIGURES):
   </defs>
   <rect width="936" height="281" fill="white"/>
   <rect class="box" x="293" y="3" width="430" height="53" fill="#f7f8fa" stroke="#a8b0b8"/>
-  <text class="heading" x="508" y="25">July work + request records</text>
+  <text class="heading" x="508" y="25">July work logs + help requests</text>
   <text class="detail" x="508" y="46">Set rarity weights and alert threshold</text>
   <path class="flow" d="M 585 57 V 81"/>
 
@@ -66,7 +66,8 @@ def pipeline(figures=FIGURES):
   <path class="flow" d="M 834.5 192 V 220"/>
 
   <rect class="box" x="414" y="226" width="283" height="44" fill="#f7f8fa" stroke="#a8b0b8"/>
-  <text class="detail" x="555.5" y="253">Later website request records</text>
+  <text class="detail" x="555.5" y="243">Recorded help requests</text>
+  <text class="detail" x="555.5" y="262">Validation and test periods</text>
   <path class="flow" d="M 699 248 H 729"/>
   <rect class="box" x="735" y="226" width="199" height="44" fill="#f7f8fa" stroke="#a8b0b8"/>
   <text class="heading" x="834.5" y="253">Evaluate ranking</text>
