@@ -1,4 +1,4 @@
-"""Plot recall against the daily alert budget on the test period.
+"""Plot recall against average alerts per observed day in the test period.
 
 Replots saved curves only: no raw logs, labels, fitting or thresholds. The
 curves and operating point come from scripts/review_alert_budget.py; their hash
@@ -68,7 +68,7 @@ def plot(curves, summary, destination):
     budget = summary['at_operating_budget']
     x0 = point['alerts_per_day']
     ax.axvline(x0, color=MUTED, lw=0.8, ls=(0, (3, 3)), zorder=0.5)
-    ax.text(x0 + 2.5, 0.035, f'July threshold: {x0:.0f} alerts/day',
+    ax.text(x0 + 2.5, 0.035, f'July threshold: {x0:.0f} alerts/day on average',
             color=INK_2, fontsize=8, ha='left', va='bottom')
     labels = {'generic_detector': (-3.5, 0.0, 'right'), 'pair_history': (3.5, -0.035, 'left'),
               'activity': (3.5, -0.035, 'left')}
@@ -87,7 +87,7 @@ def plot(curves, summary, destination):
     ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=0))
     ax.grid(axis='y', color=GRID, lw=0.6, zorder=0)
     ax.set_axisbelow(True)
-    ax.set_xlabel(f'Alerts per observed day '
+    ax.set_xlabel(f'Average alerts per observed day '
                   f'(about {summary["pairs_per_day"]:.0f} active pairs per day)')
     ax.set_ylabel('Recall (request\npair-days flagged)')
     handles, names = ax.get_legend_handles_labels()
@@ -123,7 +123,7 @@ def main():
         'source': str((args.source / 'summary.json').resolve()),
         'source_sha256': sha(args.source / 'summary.json'),
         'script_sha256': sha(__file__),
-        'purpose': 'Post-hoc display of saved frozen test-period rankings against the daily alert budget.',
+        'purpose': 'Post-hoc display of saved frozen test-period rankings against average alerts per observed day.',
         'shown_alerts_per_day': [0, X_MAX],
         'operating_point': summary['operating_point'],
         'at_operating_budget': summary['at_operating_budget'],

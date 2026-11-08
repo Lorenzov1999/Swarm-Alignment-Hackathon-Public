@@ -174,6 +174,8 @@ def build_stages(options):
                  exists(REVIEW / 'regimes' / 'report' / 'daily.csv')),
             Step('activity comparisons within pairs and days', script('check_activity_concordance.py'),
                  exists(REVIEW / 'activity-concordance-review.json')),
+            Step('follow-through activity control', script('check_followthrough_control.py'),
+                 exists(REVIEW / 'followthrough-control.json')),
             Step('each technique alone (Table 1)', script('review_technique_transfer.py'),
                  exists(OUT / 'technique-transfer' / 'table.csv')),
             Step('recall against the alert budget', script('review_alert_budget.py'),
